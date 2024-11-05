@@ -58,15 +58,15 @@ def preflop():
     for pla in players:
         pla.show_deck()
         print('')
-    while True:
-        player_bet()
-        del_players()
-        next_player()
-        if isbetsame():
-            break
+    bets_round()
+    print('')
+    for pla in players:
+        print(pla.player_name)
+        print(pla.n_bet)
+
 
 def flop(): #Выдаём 3 карты и делаем круг ставок
-    global deck
+    global deck, last_bet, prelast_bet
     global table
     global players
     global next_turn
@@ -77,24 +77,59 @@ def flop(): #Выдаём 3 карты и делаем круг ставок
     for el in table:
         el.show()
     print('')
+    zeroing_bets()
+    # print('')
+    for pla in players:
+        print(pla.player_name)
+        print(pla.n_bet)
+    print('')
+    bets_round()
+
+def turn(): #Выдаём 1 карту
+    global deck, table
+    print('')
+    print('turn')
+    print('')
+    table.append(deck[0])
+    deck.pop(0)
+    for el in table:
+        el.show()
+    print('')
+    zeroing_bets()
+    for pla in players:
+        print(pla.player_name)
+        print(pla.n_bet)
+    print('')
+    bets_round()
+
+def river(): #Выдаём 1 карту
+    global deck, table
+    print('')
+    print('river')
+    print('')
+    table.append(deck[0])
+    deck.pop(0)
+    for el in table:
+        el.show()
+    print('')
+    zeroing_bets()
+    for pla in players:
+        print(pla.player_name)
+        print(pla.n_bet)
+    print('')
+    bets_round()
+
+def bets_round():
+    tim_len = len(players)
+    blind_counter = 0
     while True:
+        blind_counter += 1
         player_bet()
         del_players()
         next_player()
-        if isbetsame():
+        # print(players[next_turn].n_bet, last_bet, prelast_bet)
+        if isbetsame() and blind_counter >= tim_len:
             break
-
-def turn(): #Выдаём 1 карту
-    global deck
-    global table
-    table.append(deck[0])
-    deck.pop(0)
-
-def river(): #Выдаём 1 карту
-    global deck
-    global table
-    table.append(deck[0])
-    deck.pop(0)
 
 def isbetsame():
     global players
@@ -119,10 +154,10 @@ def out_cards(n):
 def player_bet():
     global next_turn, players, last_bet, prelast_bet
     print(players[next_turn].player_name, ':', sep='')
-    ans = input('your bet (c, p, r): ')
-    if ans == 'c':
+    ans = input('your bet (f, c, r): ')
+    if ans == 'f':
         check_player()
-    elif ans == 'p':
+    elif ans == 'c':
         prelast_bet = last_bet
         players[next_turn].n_bet = last_bet
     elif ans == 'r':
@@ -137,6 +172,14 @@ def check_player():
     global next_turn
     global check_players
     check_players.append(players[next_turn])
+
+def zeroing_bets():
+    global players, last_bet, prelast_bet, bank
+    for pla in players:
+        bank += pla.n_bet
+        pla.n_bet = 0
+        # print(pla.player_name, ': ', pla.n_bet, sep='')
+    last_bet = 0
 
 def del_players():
     global players
@@ -191,18 +234,25 @@ values=['2','3','4','5','6','7','8','9','10','J','Q','K','A'] #Задаем ма
 suits=['Буби','Червы','Пики','Крести']
 
 #Ход игры
-gen()
-mix_deck()
-card_draw()
-out_cards(1)
-blind()
-preflop()
-flop()
-out_cards(1)
+def main_game():
+    gen()
+    mix_deck()
+    card_draw()
+    out_cards(1)
+    blind()
+    preflop()
+    flop()
+    out_cards(1)
+    turn()
+    out_cards(1)
+    river()
 
-for pla in players:
-    print(pla.player_name)
-    print(pla.n_bet)
+
+
+main_game()
+# for pla in players:
+#     print(pla.player_name)
+#     print(pla.n_bet)
 
 
 
