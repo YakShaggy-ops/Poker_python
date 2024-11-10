@@ -196,12 +196,6 @@ def del_players():
         else:
             next_turn = next_turn - 1
 
-# def pop_player():
-#     global players
-#     global next_turn
-#     players.pop(next_turn)
-#     next_turn = next_turn % len(players)
-
 def players_input(): #Набор игроков
     global players
     for i in range (int(input('how many players?: '))):
@@ -211,6 +205,24 @@ def show_desk(): #Показать колоду
     global deck
     for el in deck:
         el.show()
+
+
+def has_straight(player_cards):
+    global table
+    cards = table.copy()
+    for el in player_cards:
+        cards.append(el)
+    # Получаем уникальные значения карт и сортируем их
+    unique_values = sorted(set(card.value for card in cards))
+    # Проверяем последовательности
+    for i in range(len(unique_values) - 4):
+        if unique_values[i] + 4 == unique_values[i + 4]:  # Если 5 последовательных значений
+            straight_cards = [card for card in cards if card.value in unique_values[i:i + 5]]
+            return True, straight_cards
+
+    # Если стрит не найден, возвращаем False и 5 наибольших по значению карт
+    top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
+    return False, top_five_cards
 
 
 player_1 = Player('Player 1', 0)
