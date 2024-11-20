@@ -1,11 +1,17 @@
 import random
 
+
 class Player: #Игрок
-    def __init__(self, player_name, player_num, player_money = 1000, n_bet = 0):
+    def __init__(self, player_name, player_num, player_money = 1000, n_bet = 0, player_combination_name = 'top_cards'):
         self.player_name = player_name
         self.player_num = player_num
         self.player_money = player_money
         self.n_bet = n_bet
+        self.main_deck = []
+        self.player_combination_name = player_combination_name
+        self.player_combination = []
+        self.player_deck = []
+
 
     def get_deck(self, card1, card2):
         self.player_deck = [card1, card2]
@@ -53,7 +59,10 @@ def blind():
     next_player()
 
 def preflop():
-    global last_bet
+    global last_bet, players
+    # for pla in players:
+    #     pla.player_combination_name = ''
+    #     pla.player_combination = []
     print('preflop')
     for pla in players:
         pla.show_deck()
@@ -77,11 +86,11 @@ def flop(): #Выдаём 3 карты и делаем круг ставок
     for el in table:
         el.show()
     print('')
-    zeroing_bets()
     # print('')
     for pla in players:
         print(pla.player_name)
         print(pla.n_bet)
+    zeroing_bets()
     print('')
     bets_round()
 
@@ -95,15 +104,15 @@ def turn(): #Выдаём 1 карту
     for el in table:
         el.show()
     print('')
-    zeroing_bets()
     for pla in players:
         print(pla.player_name)
         print(pla.n_bet)
+    zeroing_bets()
     print('')
     bets_round()
 
 def river(): #Выдаём 1 карту
-    global deck, table
+    global deck, table, bank
     print('')
     print('river')
     print('')
@@ -112,12 +121,31 @@ def river(): #Выдаём 1 карту
     for el in table:
         el.show()
     print('')
-    zeroing_bets()
+
     for pla in players:
         print(pla.player_name)
         print(pla.n_bet)
+    zeroing_bets()
     print('')
     bets_round()
+
+def final():
+    global table
+
+    for pla in players:
+        print()
+        cards = table.copy()
+        for el in pla.player_deck:
+            cards.append(el)
+        best_card_combination(pla.player_deck, pla)
+        print(pla.player_combination_name)
+        print(pla.player_combination)
+        print('cards:')
+        for el in cards:
+            el.show()
+    compare_cards()
+
+
 
 def bets_round():
     tim_len = len(players)
@@ -206,23 +234,323 @@ def show_desk(): #Показать колоду
     for el in deck:
         el.show()
 
+def top_five_cards_func(cards):
+    global deck, values
+    top_five_cards = sorted(card.value for card in cards)#[:5]
+    top_five_cards.reverse()
+    top_five_cards = sorted(top_five_cards, key=lambda card: values.index(card), reverse=True)[:5]
+    return top_five_cards
 
-def has_straight(player_cards):
-    global table
+def has_straight(player_cards, five_cards_bool = True):
+    global table, values
+    if five_cards_bool:
+        cards = table.copy()
+        for el in player_cards:
+            cards.append(el)
+        set_card_values = [card.value for card in cards]
+        cards = sorted(cards, key=lambda card: values.index(card.value), reverse=True)
+    else:
+        cards = player_cards.copy()
+        set_card_values = player_cards.copy()
+    # Получаем уникальные значения карт и сортируем их
+    unique_values = sorted(set(set_card_values))
+
+    #print(1, [card.value for card in cards])
+    index_values = []
+    for s_card in unique_values:
+        index_values.append(values.index(s_card))
+    index_values.sort()
+    length = len(index_values)
+    # top_five_cards = sorted(card.value for card in cards)[:5]
+    # top_five_cards.reverse()
+    # top_five_cards = sorted(top_five_cards, key=lambda card: values.index(card), reverse=True)
+    if five_cards_bool:
+        top_five_cards = top_five_cards_func(cards)
+    else:
+        top_five_cards = player_cards.copy()
+    # Проверяем последовательности
+    ans = []
+    for i in range(length):
+        if ((int(index_values[i]) + 4) % 13 == (int(index_values[(i + 1) % length]) + 3) % 13 == (int(index_values[(i + 2) % length]) + 2) % 13
+                == (int(index_values[(i + 3) % length]) + 1) % 13 == int(index_values[(i + 4) % length])):
+            # a = int(index_values[-1])
+            # straight_value = values[a]
+            straight_value = max(int(index_values[i]), int(index_values[(i + 1) % length]), int(index_values[(i + 2) % length]),
+                                 int(index_values[(i + 3) % length]), int(index_values[(i + 4) % length]))
+            straight_value = values[straight_value]
+            # Если 5 последовательных значений
+            #straight_cards = [card for card in cards if card.value in unique_values[i:(i + 5) % length]]
+            #if len(ans) == 0:
+            #    ans = [[True, False], straight_value]
+            #if flush((int(index_values[i]) + 4) % 13):
+            #    pass
+            return True, straight_value
+    # Если стрит не найден, возвращаем False и 5 наибольших по значению карт
+    #top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
+    return False, top_five_cards
+
+def pair(player_cards):
+    global table, values
     cards = table.copy()
     for el in player_cards:
         cards.append(el)
-    # Получаем уникальные значения карт и сортируем их
-    unique_values = sorted(set(card.value for card in cards))
-    # Проверяем последовательности
-    for i in range(len(unique_values) - 4):
-        if unique_values[i] + 4 == unique_values[i + 4]:  # Если 5 последовательных значений
-            straight_cards = [card for card in cards if card.value in unique_values[i:i + 5]]
-            return True, straight_cards
 
-    # Если стрит не найден, возвращаем False и 5 наибольших по значению карт
-    top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
+    pair_values = sorted(card.value for card in cards)
+    pair_values = sorted(pair_values, key=lambda card: values.index(card), reverse=True)
+    # top_five_cards = sorted(card.value for card in cards)[:5]
+    # top_five_cards.reverse()
+    top_five_cards = top_five_cards_func(cards).copy()
+    if len(pair_values) >= len(set(pair_values)) + 1:
+        for i in range(len(pair_values) - 1):
+            if pair_values[i] == pair_values[i + 1]:
+                for q in range(2):
+                    if pair_values[i] in top_five_cards:
+                        top_five_cards.remove(pair_values[i])
+                return True, [pair_values[i], pair_values[i + 1], top_five_cards[0], top_five_cards[1], top_five_cards[2]]
+    else:
+        #top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
+        return False, top_five_cards
+
+def three_cards(player_cards):
+    global table, values
+    cards = table.copy()
+    for el in player_cards:
+        cards.append(el)
+    three_values = sorted(card.value for card in cards)
+    three_values = sorted(three_values, key=lambda card: values.index(card), reverse=True)
+    top_five_cards = top_five_cards_func(cards)
+    #print('three_values:', len(three_values), len(set(three_values)))
+    if len(three_values) >= len(set(three_values)) + 2:
+        for i in range(len(three_values) - 2):
+            #print(three_values[i], three_values[i + 1], three_values[i + 2])
+            if three_values[i] == three_values[i + 1] == three_values[i + 2]:
+                for q in range(3):
+                    if three_values[i] in top_five_cards:
+                        top_five_cards.remove(three_values[i])
+                return True, [three_values[i], three_values[i + 1], three_values[i + 2], top_five_cards[0], top_five_cards[1]]
+        else:
+            return False, top_five_cards
+    else:
+        #top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
+        return False, top_five_cards
+
+def two_pairs(player_cards):
+    global table, values
+    cards = table.copy()
+    for el in player_cards:
+        cards.append(el)
+    pair_pair_values = sorted(card.value for card in cards)
+    set_pair_pair_values = set(pair_pair_values)
+    top_five_cards = top_five_cards_func(cards)
+    ans_top_five_cards = []
+    del_l_pair_values = pair_pair_values.copy()
+    ans_two_pairs = []
+    for el in set_pair_pair_values:
+        del_l_pair_values.remove(el)
+    #print(del_l_pair_values)
+    #print("pair_pair_values:", len(pair_pair_values), len(set(pair_pair_values)), three_cards(player_cards)[0])
+    con = True
+    for i in range(len(pair_pair_values) - 1):
+        for j in range(i + 1, len(pair_pair_values)):
+            if pair_pair_values[i] == pair_pair_values[j]:
+                for q in range(j + 1, len(pair_pair_values) - 1):
+                    for w in range(q + 1, len(pair_pair_values)):
+                        if pair_pair_values[q] == pair_pair_values[w]:
+                            ans_two_pairs.append(pair_pair_values[q])
+                            ans_two_pairs.append(pair_pair_values[w])
+                            ans_two_pairs.append(pair_pair_values[i])
+                            ans_two_pairs.append(pair_pair_values[j])
+                            #print('ans_two_pairs:', ans_two_pairs)
+                            con = False
+                            break
+                    if con == False:
+                        break
+            if con == False:
+                break
+        if con == False:
+            break
+
+    if len(pair_pair_values) >= len(set(pair_pair_values)) + 2 and len(del_l_pair_values) >= 2:
+        # for i in range(2):
+        #     ans_top_five_cards.append(del_l_pair_values[0])
+        #     ans_top_five_cards.append(del_l_pair_values[1])
+        # ans_top_five_cards = sorted(ans_top_five_cards, key=lambda card: values.index(card), reverse=True)
+        #print('top_five_cards:', top_five_cards[0])
+        top_five_cards = sorted(card.value for card in cards)  # [:5]
+        top_five_cards.reverse()
+        top_seven_cards = top_five_cards = sorted(top_five_cards, key=lambda card: values.index(card), reverse=True)
+        while top_seven_cards[0] in del_l_pair_values:
+            top_seven_cards.remove(top_five_cards[0])
+            if len(top_seven_cards) == 0:
+                return False, top_seven_cards
+        #ans_top_five_cards.append(top_seven_cards[0])
+        ans_two_pairs.append(top_seven_cards[0])
+        return True, ans_two_pairs
+    #print(top_five_cards)
+    #print('ans_two_pairs:', ans_two_pairs)
     return False, top_five_cards
+
+def four_cards(player_cards):
+    global table, values
+    cards = table.copy()
+    for el in player_cards:
+        cards.append(el)
+    four_values = sorted(card.value for card in cards)
+    four_values = sorted(four_values, key=lambda card: values.index(card), reverse=True)
+    top_five_cards = top_five_cards_func(cards).copy()
+    if len(four_values) >= len(set(four_values)) + 3:
+        for i in range(len(four_values) - 3):
+            if four_values[i] == four_values[i + 1] == four_values[i + 2] == four_values[i + 3]:
+                for q in range(4):
+                    if four_values[i] in top_five_cards:
+                        top_five_cards.remove(four_values[i])
+                return True, four_values[i], four_values[i + 1], four_values[i + 2], four_values[i + 3],top_five_cards[0]
+        return False, top_five_cards
+    else:
+        # top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
+        return False, top_five_cards
+
+def full_house(player_cards):
+    global table, values
+    cards = table.copy()
+    for el in player_cards:
+        cards.append(el)
+    full_values = sorted(card.value for card in cards)
+    ans_top_five_cards = []
+    del_l_full_values = full_values.copy()
+    top_five_cards = top_five_cards_func(cards)
+    set_full_pair_values = set(full_values)
+    for el in set_full_pair_values:
+        del_l_full_values.remove(el)
+    del_l_full_values.sort()
+    #print(1, del_l_full_values)
+    if len(full_values) == len(set(full_values)) + 3 and four_cards(player_cards)[0] == False:
+        for i in range(2):
+            ans_top_five_cards.append(del_l_full_values[0])
+            ans_top_five_cards.append(del_l_full_values[2])
+        ans_top_five_cards.append(del_l_full_values[1])
+        ans_top_five_cards = sorted(ans_top_five_cards, key=lambda card: values.index(card), reverse=True)
+        # while top_five_cards[0] in del_l_full_values:
+        #     top_five_cards.remove(top_five_cards[0])
+        # ans_top_five_cards.append(top_five_cards[0])
+        return True, ans_top_five_cards
+    return False, top_five_cards
+
+def flush(player_cards, five_cards_bool = True):
+    global table, values, suits
+    if five_cards_bool:
+        cards = table.copy()
+        for el in player_cards:
+            cards.append(el)
+    else:
+        cards = player_cards
+    card_suits = sorted(card.suit for card in cards)
+    n_card_suits = sorted(cards, key=lambda card: suits.index(card.suit), reverse=True)
+    # print(2)
+    # for el in n_card_suits:
+    #     print(el.suit, end=' ')
+    # print()
+    for i in range(len(card_suits) - 4):
+        if n_card_suits[i].suit == n_card_suits[i + 4].suit:
+
+            ans_n_card_suits = n_card_suits.copy()
+            for el in n_card_suits:
+                if el.suit != n_card_suits[i].suit:
+                    ans_n_card_suits.remove(el)
+            ans_n_card_suits = sorted(ans_n_card_suits, key=lambda card: values.index(card.value), reverse=True)
+            # print(3)
+            # for el in ans_n_card_suits:
+            #     print(el.suit, end=' ')
+            # print()
+            ans_n_card_suits = n_card_suits.copy()
+            ans_n_card_suits = sorted(ans_n_card_suits, key=lambda card: values.index(card.value), reverse=True)
+            #print('ans_n_card_suits:', [card.value for card in ans_n_card_suits])
+            # return (True, [ans_n_card_suits[i].value, ans_n_card_suits[i + 1].value, ans_n_card_suits[i + 2].value,
+            #         ans_n_card_suits[i + 3].value, ans_n_card_suits[i + 4].value], n_card_suits[i].suit)
+            return True, [card.value for card in ans_n_card_suits if card.suit == n_card_suits[i].suit], n_card_suits[i].suit
+    return False, card_suits
+        # if card_suits[i] == card_suits[i + 4]:
+        #     return True, card_suits[i]
+
+def straight_flush(player_cards):
+    global table, values
+    cards = table.copy()
+    for el in player_cards:
+        cards.append(el)
+    top_five_cards = top_five_cards_func(cards)
+    if has_straight(player_cards)[0]:
+        cards = has_straight(player_cards)[1]
+        if flush(player_cards)[0]:
+            if has_straight(flush(player_cards)[1], False)[0]:
+                return True, has_straight(flush(player_cards)[1], False)[1]
+    return False, top_five_cards
+
+def royal_flush(player_cards):
+    global table, values
+    cards = table.copy()
+    for el in player_cards:
+        cards.append(el)
+    top_five_cards = top_five_cards_func(cards)
+    r_f_cards_b = [Card('Буби', 'A'), Card('Буби', 'K'), Card('Буби', 'Q'),
+                   Card('Буби', 'J'), Card('Буби', '10')]
+    for su in suits:
+        c = 0
+        for el in r_f_cards_b:
+            for le in cards:
+                if el.value == le.value and su == le.suit: c += 1
+        if c == 5: return True, [card.value for card in r_f_cards_b], su
+    return False, top_five_cards
+
+def best_card_combination(player_cards, player):
+    global table, values, suits
+    cards = table.copy()
+    for el in player_cards:
+        cards.append(el)
+    top_five_cards = top_five_cards_func(cards)
+    player.player_combination = top_five_cards
+    player.player_combination_name = 'top_cards'
+    if pair(player_cards)[0]:
+        player.player_combination = pair(player_cards)[1]
+        player.player_combination_name = 'pair'
+    if two_pairs(player_cards)[0]:
+        player.player_combination = two_pairs(player_cards)[1]
+        player.player_combination_name = 'two_pairs'
+    if three_cards(player_cards)[0]:
+        player.player_combination = three_cards(player_cards)[1]
+        player.player_combination_name = 'three_cards'
+    if has_straight(player_cards)[0]:
+        player.player_combination = has_straight(player_cards)[1]
+        player.player_combination_name = 'straight'
+    if flush(player_cards)[0]:
+        player.player_combination = flush(player_cards)[1]
+        player.player_combination_name = 'flush'
+    if full_house(player_cards)[0]:
+        player.player_combination = full_house(player_cards)[1]
+        player.player_combination_name = 'full_house'
+    if four_cards(player_cards)[0]:
+        player.player_combination = four_cards(player_cards)[1]
+        player.player_combination_name = 'four_cards'
+    if straight_flush(player_cards)[0]:
+        player.player_combination = straight_flush(player_cards)[1]
+        player.player_combination_name = 'straight_flush'
+    if royal_flush(player_cards)[0]:
+        player.player_combination = royal_flush(player_cards)[1]
+        player.player_combination_name = 'royal_flush'
+
+def compare_cards():
+    global players
+    player_win = []
+    player_sort = players.copy()
+    player_sort = sorted(player_sort, key=lambda comb: poker_combinations.index(comb.player_combination_name), reverse=True)
+    print([pla.player_combination_name for pla in player_sort])
+    for el in player_sort:
+        if el == player_sort[0]:
+            player_win.append(el)
+    print([pla.player_combination_name for pla in player_win])
+
+
+
+
 
 
 player_1 = Player('Player 1', 0)
@@ -232,6 +560,8 @@ player_4 = Player('Player 4', 3)
 
 #Переменные
 prelast_bet = 0
+poker_combinations = ['top_cards', 'pair', 'two_pairs', 'three_cards', 'straight',
+                'flush', 'full_house', 'four_cards', 'straight_flush', 'royal_flush']
 base_bet = 10
 m_bet = 5
 last_bet = 0
@@ -247,6 +577,7 @@ suits=['Буби','Червы','Пики','Крести']
 
 #Ход игры
 def main_game():
+    global deck, table, player_1, player_2, player_3, player_4
     gen()
     mix_deck()
     card_draw()
@@ -258,14 +589,18 @@ def main_game():
     turn()
     out_cards(1)
     river()
+    #table = [Card('Буби', '9'), Card('Буби', 'K'), Card('Буби', 'Q'), Card('Буби', 'J'), Card('Буби', '10')]
+    #table = [Card('Буби', '8'), Card('Буби', 'Q'), Card('Буби', 'J'), Card('Буби', '10'), Card('Буби', '9')]
+    #table = [Card('Буби', 'K'), Card('Буби', 'A'), Card('Буби', '2'), Card('Буби', '3'), Card('Буби', '4')]
+    final()
 
-
+#print(top_five_cards_func([Card('Буби', 'K'), Card('Буби', 'K'), Card('Буби', 'Q'), Card('Буби', '7'), Card('Буби', '8'), Card('Буби', '8'), Card('Червs', '9')]))
 
 main_game()
+
 # for pla in players:
 #     print(pla.player_name)
 #     print(pla.n_bet)
-
 
 
 
