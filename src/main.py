@@ -369,23 +369,41 @@ def two_pairs(player_cards):
                 break
         if con == False:
             break
+    if len(pair_pair_values) >= len(set(pair_pair_values)) + 2 and len(del_l_pair_values) >= 2 and len(del_l_pair_values) == len(set(del_l_pair_values)):
+        if len(del_l_pair_values) == 3:
+            del_l_pair_values = sorted(del_l_pair_values, key=lambda card: values.index(card), reverse=True)
+            #print(del_l_pair_values)
+            top_five_cards = sorted(card.value for card in cards)
+            top_five_cards.reverse()
+            del_l_pair_values.pop(-1)
+            #print(del_l_pair_values)
+            for i in range(2):
+                ans_top_five_cards.append(del_l_pair_values[0])
+                ans_top_five_cards.append(del_l_pair_values[1])
+            print(ans_top_five_cards)
+            top_seven_cards = sorted(top_five_cards, key=lambda card: values.index(card), reverse=True)
+            while top_seven_cards[0] in del_l_pair_values:
+                top_seven_cards.remove(top_seven_cards[0])
+                if len(top_seven_cards) == 0:
+                    return False, top_seven_cards
 
-    if len(pair_pair_values) >= len(set(pair_pair_values)) + 2 and len(del_l_pair_values) >= 2:
-        # for i in range(2):
-        #     ans_top_five_cards.append(del_l_pair_values[0])
-        #     ans_top_five_cards.append(del_l_pair_values[1])
-        # ans_top_five_cards = sorted(ans_top_five_cards, key=lambda card: values.index(card), reverse=True)
-        #print('top_five_cards:', top_five_cards[0])
-        top_five_cards = sorted(card.value for card in cards)  # [:5]
-        top_five_cards.reverse()
-        top_seven_cards = top_five_cards = sorted(top_five_cards, key=lambda card: values.index(card), reverse=True)
-        while top_seven_cards[0] in del_l_pair_values:
-            top_seven_cards.remove(top_five_cards[0])
-            if len(top_seven_cards) == 0:
-                return False, top_seven_cards
-        #ans_top_five_cards.append(top_seven_cards[0])
-        ans_two_pairs.append(top_seven_cards[0])
-        return True, ans_two_pairs
+            ans_top_five_cards = sorted(ans_top_five_cards, key=lambda card: values.index(card), reverse=True)
+            ans_top_five_cards.append(top_seven_cards[0])
+            return True, ans_top_five_cards
+
+            #print('top_five_cards:', top_five_cards[0])
+        else:
+            top_five_cards = sorted(card.value for card in cards)  # [:5]
+            top_five_cards.reverse()
+            top_seven_cards = sorted(top_five_cards, key=lambda card: values.index(card), reverse=True)
+            while top_seven_cards[0] in del_l_pair_values:
+                top_seven_cards.remove(top_seven_cards[0])
+                if len(top_seven_cards) == 0:
+                    return False, top_seven_cards
+            #ans_top_five_cards.append(top_seven_cards[0])
+            ans_two_pairs.reverse()
+            ans_two_pairs.append(top_seven_cards[0])
+            return True, ans_two_pairs
     #print(top_five_cards)
     #print('ans_two_pairs:', ans_two_pairs)
     return False, top_five_cards
@@ -397,14 +415,14 @@ def four_cards(player_cards):
         cards.append(el)
     four_values = sorted(card.value for card in cards)
     four_values = sorted(four_values, key=lambda card: values.index(card), reverse=True)
-    top_five_cards = top_five_cards_func(cards).copy()
+    top_five_cards = top_five_cards_func(cards)
     if len(four_values) >= len(set(four_values)) + 3:
         for i in range(len(four_values) - 3):
             if four_values[i] == four_values[i + 1] == four_values[i + 2] == four_values[i + 3]:
                 for q in range(4):
                     if four_values[i] in top_five_cards:
                         top_five_cards.remove(four_values[i])
-                return True, four_values[i], four_values[i + 1], four_values[i + 2], four_values[i + 3],top_five_cards[0]
+                return True, [four_values[i], four_values[i + 1], four_values[i + 2], four_values[i + 3],top_five_cards[0]]
         return False, top_five_cards
     else:
         # top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
@@ -424,7 +442,7 @@ def full_house(player_cards):
         del_l_full_values.remove(el)
     del_l_full_values.sort()
     #print(1, del_l_full_values)
-    if len(full_values) == len(set(full_values)) + 3 and four_cards(player_cards)[0] == False:
+    if len(full_values) == len(set(full_values)) + 3 and four_cards(player_cards)[0] == False and len(set(del_l_full_values)) == 2:
         for i in range(2):
             ans_top_five_cards.append(del_l_full_values[0])
             ans_top_five_cards.append(del_l_full_values[2])
@@ -544,10 +562,39 @@ def compare_cards():
     player_sort = sorted(player_sort, key=lambda comb: poker_combinations.index(comb.player_combination_name), reverse=True)
     print([pla.player_combination_name for pla in player_sort])
     for el in player_sort:
-        if el == player_sort[0]:
+        if el.player_combination_name == player_sort[0].player_combination_name:
             player_win.append(el)
     print([pla.player_combination_name for pla in player_win])
+    wins_combination_players = [player_win[0]]
+    for i in range(1, len(player_win)):
+        for q in range(len(player_win[0].player_combination)):
+            if wins_combination_players[0] == player_win[i]:
+                continue
+            p_1 = values.index(wins_combination_players[0].player_combination[q])
+            p_2 = values.index(player_win[i].player_combination[q])
+            #print(wins_combination_players[0].player_name)
+            #print(player_win[i].player_name)
+            #print(p_1, p_2)
+            if p_1 < p_2:
+                wins_combination_players[0] = player_win[i]
+            elif p_1 == p_2:
+                if q == len(player_win[0].player_combination) - 1:
+                    wins_combination_players.append(player_win[i])
+    wins_combination = wins_combination_players.copy()
+    for i in range(1, len(wins_combination_players)):
+        if wins_combination_players[0].player_combination != wins_combination_players[i].player_combination:
+            wins_combination.remove(wins_combination_players[i])
+    #print(wins_combination_players[0].player_name)
+    # if wins_combination_players[0].player_combination == wins_combination_players[-1].player_combination and len(wins_combination_players) >= 2:
+    #     print(wins_combination_players[-1].player_name)
+    print()
+    for pla in wins_combination:
+        print(pla.player_name)
 
+    #print([pla.player_combination_name, pla.player_name] for pla in player_win)
+    #print([pla.player_combination_name, pla.player_name, [pla.player_deck[i].value for i in range(len(pla.player_deck))]] for pla in wins_combination_players)
+    #print(type(player_win))
+    #print(player_win[0])
 
 
 
@@ -557,6 +604,8 @@ player_1 = Player('Player 1', 0)
 player_2 = Player('Player 2', 1)
 player_3 = Player('Player 3', 2)
 player_4 = Player('Player 4', 3)
+
+test_player = Player('Test Player', 4)
 
 #Переменные
 prelast_bet = 0
@@ -590,7 +639,7 @@ def main_game():
     out_cards(1)
     river()
     #table = [Card('Буби', '9'), Card('Буби', 'K'), Card('Буби', 'Q'), Card('Буби', 'J'), Card('Буби', '10')]
-    #table = [Card('Буби', '8'), Card('Буби', 'Q'), Card('Буби', 'J'), Card('Буби', '10'), Card('Буби', '9')]
+    #table = [Card('Буби', '8'), Card('Крести', '8'), Card('Буби', '8'), Card('Крести', '8'), Card('Буби', '5')]
     #table = [Card('Буби', 'K'), Card('Буби', 'A'), Card('Буби', '2'), Card('Буби', '3'), Card('Буби', '4')]
     final()
 
