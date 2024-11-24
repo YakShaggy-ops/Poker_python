@@ -1,2 +1,0 @@
-# Poker_python
-poker
