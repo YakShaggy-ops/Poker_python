@@ -106,17 +106,8 @@ def turn(): #Выдаём 1 карту
 
 def river(): #Выдаём 1 карту
     global deck, table, bank
-    # print('')
-    # print('river')
-    # print('')
     table.append(deck[0])
     deck.pop(0)
-    # show_table_cards(table)
-    # for pla in players:
-    #     show_player_cards(pla)
-    # zeroing_bets()
-    # print('')
-    # bets_round()
 
 def final():
     global table
@@ -328,10 +319,8 @@ def three_cards(player_cards):
     three_values = sorted(card.value for card in cards)
     three_values = sorted(three_values, key=lambda card: values.index(card), reverse=True)
     top_five_cards = top_five_cards_func(cards)
-    #print('three_values:', len(three_values), len(set(three_values)))
     if len(three_values) >= len(set(three_values)) + 2:
         for i in range(len(three_values) - 2):
-            #print(three_values[i], three_values[i + 1], three_values[i + 2])
             if three_values[i] == three_values[i + 1] == three_values[i + 2]:
                 for q in range(3):
                     if three_values[i] in top_five_cards:
@@ -340,7 +329,6 @@ def three_cards(player_cards):
         else:
             return False, top_five_cards
     else:
-        #top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
         return False, top_five_cards
 
 def two_pairs(player_cards):
@@ -451,16 +439,13 @@ def full_house(player_cards):
     for el in set_full_pair_values:
         del_l_full_values.remove(el)
     del_l_full_values.sort()
-    #print(1, del_l_full_values)
-    if len(full_values) == len(set(full_values)) + 3 and four_cards(player_cards)[0] == False and len(set(del_l_full_values)) == 2:
+    if (len(full_values) == len(set(full_values)) + 3 and four_cards(player_cards)[0] == False
+            and len(set(del_l_full_values)) == 2):
         for i in range(2):
             ans_top_five_cards.append(del_l_full_values[0])
             ans_top_five_cards.append(del_l_full_values[2])
         ans_top_five_cards.append(del_l_full_values[1])
         ans_top_five_cards = sorted(ans_top_five_cards, key=lambda card: values.index(card), reverse=True)
-        # while top_five_cards[0] in del_l_full_values:
-        #     top_five_cards.remove(top_five_cards[0])
-        # ans_top_five_cards.append(top_five_cards[0])
         return True, ans_top_five_cards
     return False, top_five_cards
 
@@ -559,11 +544,9 @@ def compare_cards():
     player_win = []
     player_sort = players.copy()
     player_sort = sorted(player_sort, key=lambda comb: poker_combinations.index(comb.player_combination_name), reverse=True)
-    #print([pla.player_combination_name for pla in player_sort])
     for el in player_sort:
         if el.player_combination_name == player_sort[0].player_combination_name:
             player_win.append(el)
-    #print([pla.player_combination_name for pla in player_win])
     wins_combination_players = player_win.copy()
 
     for i in range(len(player_win) - 1):
@@ -635,23 +618,19 @@ def compare_cards_i():
 
 
 def main_game():
-    global table
     #print('main_game started')
     gen_d()
     mix_deck()
     card_draw()
     out_cards(1)
     blind()
-    # preflop()
-    # flop()
-    # out_cards(1)
-    # turn()
-    # out_cards(1)
-    # river()
-    # #table = [Card('Буби', 'A'), Card('Буби', 'K'), Card('Буби', 'Q'), Card('Буби', 'J'), Card('Буби', '10')]
-    # #table = [Card('Буби', '8'), Card('Крести', '8'), Card('Буби', '8'), Card('Крести', '8'), Card('Буби', '5')]
-    # #table = [Card('Буби', 'K'), Card('Буби', 'A'), Card('Буби', '2'), Card('Буби', '3'), Card('Буби', '4')]
-    # final()
+    preflop()
+    flop()
+    out_cards(1)
+    turn()
+    out_cards(1)
+    river()
+    final()
 
 # def players_input(): #Набор игроков
 #     global players

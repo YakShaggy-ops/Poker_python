@@ -444,6 +444,24 @@ class Ui_MainWindow(QMainWindow):
         self.pixmap = self.pixmap.scaled(self.new_width, self.new_height)
         self.Player_2_card_2.setPixmap(self.pixmap)
 
+    def card_update_not_time(self):
+        self.pixmap = QPixmap(show_cards_way(get_players()[0].player_deck[0]))
+        self.pixmap = self.pixmap.scaled(self.new_width, self.new_height)
+        self.Player_1_card_1.setPixmap(self.pixmap)
+
+        self.pixmap = QPixmap(show_cards_way(get_players()[0].player_deck[1]))
+        self.pixmap = self.pixmap.scaled(self.new_width, self.new_height)
+        self.Player_1_card_2.setPixmap(self.pixmap)
+
+        self.pixmap = QPixmap(show_cards_way(get_players()[1].player_deck[0]))
+        self.pixmap = self.pixmap.scaled(self.new_width, self.new_height)
+        self.Player_2_card_1.setPixmap(self.pixmap)
+
+        self.pixmap = QPixmap(show_cards_way(get_players()[1].player_deck[1]))
+        self.pixmap = self.pixmap.scaled(self.new_width, self.new_height)
+        self.Player_2_card_2.setPixmap(self.pixmap)
+
+
     def clean_table_cards(self):
         pass
         self.card_6.clear()
@@ -496,11 +514,16 @@ class Ui_MainWindow(QMainWindow):
     def restart_button(self):
         players = get_players()
         #self.Player_1_bet_numb
-        players[0].player_money += players[0].n_bet
-        players[1].player_money += players[1].n_bet
+        players[0].player_money = 1000
+        players[1].player_money = 1000
+        self.Player_1_bank_numb.setText(str(1000))
+        self.Player_2_bank_numb.setText(str(1000))
+        self.Player_1_bank_numb.repaint()
+        self.Player_2_bank_numb.repaint()
         players[0].n_bet, players[1].n_bet = 0, 0
         self.bank = 0
-        # self.Bank_numb.setText(str(0))
+        self.Bank_numb.setText(str(0))
+        self.Bank_numb.repaint()
         time.sleep(1)
         #print(players[1].player_money)
         MainWindow = QtWidgets.QMainWindow()
@@ -831,15 +854,16 @@ class Ui_MainWindow(QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Poker"))
-        self.Flop_text.setText(_translate("MainWindow", "Flop"))
-        self.Turn_text.setText(_translate("MainWindow", "Turn"))
-        self.River_text.setText(_translate("MainWindow", "River"))
+        self.Flop_text.setText(_translate("MainWindow", "<b>Flop</b>"))
+        self.Turn_text.setText(_translate("MainWindow", "<b>Turn</b>"))
+        self.River_text.setText(_translate("MainWindow", "<b>River</b>"))
         self.card_5_text.setText(_translate("MainWindow", "Card 5"))
         self.card_4_text.setText(_translate("MainWindow", "Card 4"))
         self.card_2_text.setText(_translate("MainWindow", "Card 2"))
         self.card_3_text.setText(_translate("MainWindow", "Card 3"))
         self.card_1_text.setText(_translate("MainWindow", "Card 1"))
-        self.Bank_text.setText(_translate("MainWindow", "Bank"))
+        self.Bank_text.setText(_translate("MainWindow", "<b>Bank</b>"))
+        #self.Bank_text.setStyleSheet("padding: 5px;")
         self.Bank_numb.setText(_translate("MainWindow", "0"))
         self.pushButton.setText(_translate("MainWindow", "Restart game"))
         self.Player_1_text.setText(_translate("MainWindow", "Player 1"))
