@@ -520,6 +520,10 @@ class Ui_MainWindow(QMainWindow):
         self.Player_2_bank_numb.setText(str(1000))
         self.Player_1_bank_numb.repaint()
         self.Player_2_bank_numb.repaint()
+        self.Player_1_bet_numb.setText(str(0))
+        self.Player_2_bet_numb.setText(str(0))
+        self.Player_1_bet_numb.repaint()
+        self.Player_2_bet_numb.repaint()
         players[0].n_bet, players[1].n_bet = 0, 0
         self.bank = 0
         self.Bank_numb.setText(str(0))
