@@ -59,3 +59,5 @@ def final_i(): final()
 def get_wins_player_i(): return compare_cards_i()
 
 def get_table_i(): return get_table()
+
+def zero_last_bets(): zer_last_bet_2()

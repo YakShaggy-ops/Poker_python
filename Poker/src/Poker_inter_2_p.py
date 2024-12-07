@@ -118,8 +118,6 @@ class Ui_MainWindow(QMainWindow):
             self.Player_2_bank_numb.setText(str(new_p_bank))
             players[1].player_money = new_p_bank
 
-            #print('turn =', turn)
-            #self.player_wins_2()
             players[1].player_money = new_p_bank + self.bank
             #print(players[1].player_money, players[0].n_bet, players[1].n_bet)
             self.bank = 0
@@ -139,20 +137,7 @@ class Ui_MainWindow(QMainWindow):
 
                 self.end_programm()
 
-            time.sleep(self.time_sleep)
-            #print(players[1].player_money)
-            MainWindow = QtWidgets.QMainWindow()
-            start_game()
-
-            ui = Ui_MainWindow()
-            ui.setupUi(MainWindow)
-            self.card_update()
-            ui.update_inf()
-            self.player_bets_counter = 0
-            self.game_pos = 0
-            self.clean_table_cards()
-
-            MainWindow.show()
+            self.restart_win()
         elif turn == 1:
             a = self.Player_1_bet_numb.text()
             b = self.Player_2_bet_numb.text()
@@ -170,7 +155,6 @@ class Ui_MainWindow(QMainWindow):
                 self.end_programm()
 
             players[0].player_money = new_p_bank + self.bank
-            #print(players[0].player_money, players[0].n_bet, players[1].n_bet)
             self.bank = 0
             self.Bank_numb.setText(str(0))
             self.Bank_numb.repaint()
@@ -180,19 +164,8 @@ class Ui_MainWindow(QMainWindow):
 
             self.Player_2_bank_numb.setText(str(players[1].player_money))
             self.Player_2_bank_numb.repaint()
-            time.sleep(self.time_sleep)
-            #print(players[1].player_money)
-            MainWindow = QtWidgets.QMainWindow()
-            start_game()
-            ui = Ui_MainWindow()
-            ui.setupUi(MainWindow)
-            self.card_update()
-            ui.update_inf()
-            self.player_bets_counter = 0
-            self.game_pos = 0
-            self.clean_table_cards()
 
-            MainWindow.show()
+            self.restart_win()
 
         #print(players[turn].player_name, 'wins')
 
@@ -201,8 +174,12 @@ class Ui_MainWindow(QMainWindow):
         players = get_players()
         self.Player_1_bet_numb.setText(str(players[0].n_bet))
         self.Player_2_bet_numb.setText(str(players[1].n_bet))
+        self.Player_1_bet_numb.repaint()
+        self.Player_2_bet_numb.repaint()
         self.Player_1_bank_numb.setText(str(players[0].player_money))
         self.Player_2_bank_numb.setText(str(players[1].player_money))
+        self.Player_1_bank_numb.repaint()
+        self.Player_2_bank_numb.repaint()
 
     def whose_turn(self):
         turn = get_turn()
@@ -213,8 +190,6 @@ class Ui_MainWindow(QMainWindow):
         # print(2)
         turn = get_turn()
         players = get_players()
-        # self.text_console(turn, 'Please, enter a number')
-        #print(ans, number)
         if number == turn + 1:
             if ans == 'c':
                 #print(12)
@@ -226,8 +201,6 @@ class Ui_MainWindow(QMainWindow):
                 #self.player_bets_counter += 1
             if ans == 'f':
                 self.second_player_wins()
-                # self.player_bets_counter += 1
-                # main_player_answer('f', bet)
             if ans == 'r':
                 try:
                     bet = int(bet)
@@ -240,26 +213,21 @@ class Ui_MainWindow(QMainWindow):
             self.player_bets_counter += 1
             #print(tim_len, self.player_bets_counter)
             if self.isbetsame_i() and self.player_bets_counter >= tim_len:
-                #print(4321)
-                # self.bank += int(self.Player_1_bet_numb.text())
-                # self.bank += int(self.Player_2_bet_numb.text())
                 self.bank += players[0].n_bet
                 self.bank += players[1].n_bet
-                #print('bank:', self.bank)
                 self.Player_1_bet_numb.setText(str(0))
                 self.Player_2_bet_numb.setText(str(0))
+                self.Player_1_bet_numb.repaint()
+                self.Player_2_bet_numb.repaint()
                 for pla in players:
                     pla.n_bet = 0
 
                 if self.game_pos == 0:
                     flop_i()
                     table = get_table_i()
-                    #print("game_pos == 0")
                     self.pixmap = QPixmap(show_cards_way(table[0]))
                     self.pixmap = self.pixmap.scaled(self.new_width, self.new_height)
                     self.card_6.setPixmap(self.pixmap)
-                    #print(table[0].value, 'value')
-                    #self.card_6.update()
                     if self.pixmap.isNull():
                         print("Ошибка загрузки изображения для карты 0")
 
@@ -273,7 +241,6 @@ class Ui_MainWindow(QMainWindow):
 
                     self.game_pos += 1
                     push_last_bet_i(0)
-                    #print(self.game_pos, 'ljhg')
                     self.player_bets_counter = 0
 
                 elif self.game_pos == 1:
@@ -302,23 +269,15 @@ class Ui_MainWindow(QMainWindow):
                     if len(pla) == 1:
                         #print('P_I', pla[0].player_name)
                         turn = players.index(pla[0])
-                        #print("fin_turn", turn)
-                        #self.final_player(self, turn)
                         players = get_players()
-                        # self.text_console(turn, 'You win round!')
                         if turn == 1:
                             a = self.Player_1_bet_numb.text()
                             b = self.Player_2_bet_numb.text()
                             a, b = int(a), int(b)
-                            #print(a, b)
                             new_p_bank = a + b + int(self.Player_2_bank_numb.text())
-                            #print(new_p_bank, a, b)
                             self.Player_2_bank_numb.setText(str(new_p_bank))
                             players[1].player_money = new_p_bank
-                            # print('turn =', turn)
-                            # self.player_wins_2()
                             players[1].player_money = new_p_bank + self.bank
-                            #print(players[1].player_money, players[0].n_bet, players[1].n_bet)
                             self.bank = 0
                             self.Bank_numb.setText(str(0))
                             self.Bank_numb.repaint()
@@ -335,34 +294,16 @@ class Ui_MainWindow(QMainWindow):
 
                                 self.end_programm()
 
-                            time.sleep(self.time_sleep)
-                            #print(players[1].player_money)
-                            MainWindow = QtWidgets.QMainWindow()
-                            start_game()
-
-                            ui = Ui_MainWindow()
-                            ui.setupUi(MainWindow)
-                            self.card_update()
-                            ui.update_inf()
-                            self.player_bets_counter = 0
-                            self.game_pos = 0
-                            self.clean_table_cards()
-
-                            MainWindow.show()
+                            self.restart_win()
                         elif turn == 0:
                             a = self.Player_1_bet_numb.text()
                             b = self.Player_2_bet_numb.text()
                             a, b = int(a), int(b)
-                            #print(a, b)
                             new_p_bank = a + b + int(self.Player_2_bank_numb.text())
-                            #print(new_p_bank, a, b)
                             self.Player_1_bank_numb.setText(str(new_p_bank))
                             players[0].player_money = new_p_bank
 
-                            # print('turn =', turn)
-                            # self.player_wins_2()
                             players[0].player_money = new_p_bank + self.bank
-                            #print(players[0].player_money, players[0].n_bet, players[1].n_bet)
                             self.bank = 0
                             self.Bank_numb.setText(str(0))
                             self.Bank_numb.repaint()
@@ -379,19 +320,7 @@ class Ui_MainWindow(QMainWindow):
 
                                 self.end_programm()
 
-                            time.sleep(self.time_sleep)
-                            #print(players[1].player_money)
-                            MainWindow = QtWidgets.QMainWindow()
-                            start_game()
-                            ui = Ui_MainWindow()
-                            ui.setupUi(MainWindow)
-                            self.card_update()
-                            ui.update_inf()
-                            self.player_bets_counter = 0
-                            self.game_pos = 0
-                            self.clean_table_cards()
-
-                            MainWindow.show()
+                            self.restart_win()
                     else:
                         a = self.Player_1_bet_numb.text()
                         b = self.Player_2_bet_numb.text()
@@ -411,21 +340,20 @@ class Ui_MainWindow(QMainWindow):
                         self.Player_2_bank_numb.setText(str(players[1].player_money))
                         self.Player_2_bank_numb.repaint()
 
-                        time.sleep(self.time_sleep)
-                        #print(players[1].player_money)
-                        MainWindow = QtWidgets.QMainWindow()
-                        start_game()
-                        ui = Ui_MainWindow()
-                        ui.setupUi(MainWindow)
-                        self.card_update()
-                        ui.update_inf()
-                        self.player_bets_counter = 0
-                        self.game_pos = 0
-                        self.clean_table_cards()
-                        MainWindow.show()
+                        self.restart_win()
 
             self.update_inf()
 
+
+    def restart_win(self, t=3):
+        time.sleep(t)
+        self.card_update()
+        self.update_inf()
+        self.player_bets_counter = 0
+        self.game_pos = 0
+        self.clean_table_cards()
+        start_game()
+        #MainWindow.show()
 
     def card_update(self):
         self.pixmap = QPixmap(show_cards_way(get_players()[0].player_deck[0]))
@@ -469,9 +397,6 @@ class Ui_MainWindow(QMainWindow):
         self.card_8.clear()
         self.card_9.clear()
         self.card_10.clear()
-        #
-
-
 
 
 
@@ -520,25 +445,28 @@ class Ui_MainWindow(QMainWindow):
         self.Player_2_bank_numb.setText(str(1000))
         self.Player_1_bank_numb.repaint()
         self.Player_2_bank_numb.repaint()
-        self.Player_1_bet_numb.setText(str(0))
-        self.Player_2_bet_numb.setText(str(0))
-        self.Player_1_bet_numb.repaint()
-        self.Player_2_bet_numb.repaint()
         players[0].n_bet, players[1].n_bet = 0, 0
         self.bank = 0
         self.Bank_numb.setText(str(0))
         self.Bank_numb.repaint()
-        time.sleep(1)
-        #print(players[1].player_money)
-        MainWindow = QtWidgets.QMainWindow()
-        start_game()
-        ui = Ui_MainWindow()
-        ui.setupUi(MainWindow)
-        self.card_update()
-        ui.update_inf()
-        self.player_bets_counter = 0
-        self.game_pos = 0
         self.clean_table_cards()
+        zero_last_bets()
+        self.restart_win(t=0)
+
+
+        # time.sleep(1)
+        # #print(players[1].player_money)
+        # MainWindow = QtWidgets.QMainWindow()
+        # start_game()
+        # ui = Ui_MainWindow()
+        # ui.setupUi(MainWindow)
+        # self.card_update()
+        # ui.update_inf()
+        # self.player_bets_counter = 0
+        # self.game_pos = 0
+        # self.clean_table_cards()
+
+
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -634,13 +562,6 @@ class Ui_MainWindow(QMainWindow):
 
         self.pushButton.clicked.connect(self.restart_button)
 
-        # self.pixmap = QPixmap('../data/images_b/card_2.jpg')
-        # self.pixmap = QPixmap(show_cards_way(Card("Буби", 'A')))
-        # self.pixmap.scaled(1, 1)
-        # Если картинки нет, то QPixmap будет пустым,
-        # Отображаем содержимое QPixmap в объекте QLabel
-        # self.image.setPixmap(self.pixmap)
-
         self.card_6 = QtWidgets.QLabel(parent=self.centralwidget)
         self.card_6.setGeometry(QtCore.QRect(0, 150, self.new_width, self.new_height))
         # self.card_6.setPixmap(self.pixmap)
@@ -719,12 +640,6 @@ class Ui_MainWindow(QMainWindow):
 
         self.Player_1_fold_button.clicked.connect(lambda: self.player_answer('f', 1))
 
-        # self.Player_1_raise_button = QtWidgets.QPushButton(parent=self.centralwidget)
-        # self.Player_1_raise_button.setGeometry(QtCore.QRect(200, 391, 91, 23))
-        # self.Player_1_raise_button.setStyleSheet("background-color: rgb(255, 255, 255);")
-        # self.Player_1_raise_button.setObjectName("Player_1_raise_button")
-        #
-        # self.Player_1_raise_button.clicked.connect(lambda: self.player_answer('r', 1))
 
         self.Player_1_r_lineEdit = QtWidgets.QLineEdit(parent=self.centralwidget)
         self.Player_1_r_lineEdit.setGeometry(QtCore.QRect(200, 420, 91, 31))
@@ -793,13 +708,6 @@ class Ui_MainWindow(QMainWindow):
         self.Player_2_bet_text.setGeometry(QtCore.QRect(400, 280, 61, 16))
         self.Player_2_bet_text.setObjectName("Player_2_bet_text")
 
-
-        # self.Player_2_raise_button = QtWidgets.QPushButton(parent=self.centralwidget)
-        # self.Player_2_raise_button.setGeometry(QtCore.QRect(500, 390, 91, 23))
-        # self.Player_2_raise_button.setStyleSheet("background-color: rgb(255, 255, 255);")
-        # self.Player_2_raise_button.setObjectName("Player_2_raise_button")
-        #
-        # self.Player_2_raise_button.clicked.connect(lambda: self.player_answer('r', 2))
 
         self.Player_2_r_lineEdit = QtWidgets.QLineEdit(parent=self.centralwidget)
         self.Player_2_r_lineEdit.setGeometry(QtCore.QRect(500, 419, 91, 31))

@@ -48,10 +48,12 @@ def blind():
     global last_bet
     players[next_turn].n_bet = base_bet // 2
     players[next_turn].player_money -= players[next_turn].n_bet
+    #print(players[next_turn].n_bet)
     next_player()
     players[next_turn].n_bet = base_bet
     players[next_turn].player_money -= players[next_turn].n_bet
     last_bet = base_bet
+    #print(players[next_turn].n_bet)
     next_player()
 
 def preflop():
@@ -127,7 +129,9 @@ def final():
     # print()
     # print('bank:', bank)
 
-
+def zer_last_bet_2():
+    last_bet = 0
+    pre_last_bet = 0
 
 def bets_round():
     tim_len = len(players)
@@ -144,17 +148,12 @@ def bets_round():
             break
 
 def next_player_round():
-    global blind_counter
+    global blind_counter, last_bet
     tim_len = len(players)
-    #blind_counter = 0
     blind_counter += 1
-    #player_bet()
-    #del_players()
     next_player()
     #print(players[next_turn].n_bet, last_bet, prelast_bet)
     if isbetsame() and blind_counter >= tim_len:
-        # print()
-        # print('bank:', bank)
         last_bet = 0
 
 def isbetsame():
@@ -187,8 +186,6 @@ def player_bet(ans, bet, bet_o):
         next_player_round()
     elif ans == 'c':
         prelast_bet = last_bet + int(bet_o)
-        #print(last_bet)
-        #print(bet_o)
         players[next_turn].n_bet = last_bet
         players[next_turn].player_money -= last_bet - int(bet_o)
         players[next_turn].player_answer = 'c'
@@ -200,7 +197,6 @@ def player_bet(ans, bet, bet_o):
                 try_last_bet = int(bet) + int(bet_o)
                 if try_last_bet <= last_bet:
                     pass
-                    #print('your bet is less than last_bet')
                 else:
                     if try_last_bet > (players[0].n_bet + players[0].player_money) or try_last_bet > (players[1].n_bet + players[1].player_money):
                         try_last_bet = min(players[0].n_bet + players[0].player_money, players[1].n_bet + players[1].player_money)# + bet
@@ -212,12 +208,9 @@ def player_bet(ans, bet, bet_o):
                     next_player_round()
                 break
             except ValueError:
-                #print('please enter a number')
-                #ui.text_console(turn, 'please enter a number')
                 break
     else:
         print('invalid input')
-    #print('PLAS')
 
 
 def fold_player():
@@ -308,7 +301,6 @@ def pair(player_cards):
                         top_five_cards.remove(pair_values[i])
                 return True, [pair_values[i], pair_values[i + 1], top_five_cards[0], top_five_cards[1], top_five_cards[2]]
     else:
-        #top_five_cards = sorted(cards, key=lambda card: card.value, reverse=True)[:5]
         return False, top_five_cards
 
 def three_cards(player_cards):
@@ -344,8 +336,6 @@ def two_pairs(player_cards):
     ans_two_pairs = []
     for el in set_pair_pair_values:
         del_l_pair_values.remove(el)
-    #print(del_l_pair_values)
-    #print("pair_pair_values:", len(pair_pair_values), len(set(pair_pair_values)), three_cards(player_cards)[0])
     con = True
     for i in range(len(pair_pair_values) - 1):
         for j in range(i + 1, len(pair_pair_values)):
@@ -377,7 +367,7 @@ def two_pairs(player_cards):
             for i in range(2):
                 ans_top_five_cards.append(del_l_pair_values[0])
                 ans_top_five_cards.append(del_l_pair_values[1])
-            print(ans_top_five_cards)
+            #print(ans_top_five_cards)
             top_seven_cards = sorted(top_five_cards, key=lambda card: values.index(card), reverse=True)
             while top_seven_cards[0] in del_l_pair_values:
                 top_seven_cards.remove(top_seven_cards[0])
@@ -387,8 +377,6 @@ def two_pairs(player_cards):
             ans_top_five_cards = sorted(ans_top_five_cards, key=lambda card: values.index(card), reverse=True)
             ans_top_five_cards.append(top_seven_cards[0])
             return True, ans_top_five_cards
-
-            #print('top_five_cards:', top_five_cards[0])
         else:
             top_five_cards = sorted(card.value for card in cards)  # [:5]
             top_five_cards.reverse()
@@ -397,13 +385,10 @@ def two_pairs(player_cards):
                 top_seven_cards.remove(top_seven_cards[0])
                 if len(top_seven_cards) == 0:
                     return False, top_seven_cards
-            #ans_top_five_cards.append(top_seven_cards[0])
             if values.index(ans_two_pairs[0]) < values.index(ans_two_pairs[3]):
                 ans_two_pairs.reverse()
             ans_two_pairs.append(top_seven_cards[0])
             return True, ans_two_pairs
-    #print(top_five_cards)
-    #print('ans_two_pairs:', ans_two_pairs)
     return False, top_five_cards
 
 def four_cards(player_cards):
@@ -571,9 +556,6 @@ def bank_separation(wins_combination):
     global bank
     if len(wins_combination) == 1:
         wins_combination[0].player_bank_win = bank
-        # print()
-        # print(wins_combination[0].player_name)
-        # print(wins_combination[0].player_bank_win)
     else:
         #print()
         players_procent = 1 / len(wins_combination)
@@ -583,8 +565,6 @@ def bank_separation(wins_combination):
             bank -= bank_pl_proc
             if bank < bank_pl_proc:
                 pla.player_bank_win += bank
-            # print(pla.player_name)
-            # print(pla.player_bank_win)
 
 def compare_cards_i():
     global players
@@ -625,22 +605,12 @@ def main_game():
     out_cards(1)
     blind()
     preflop()
-    flop()
-    out_cards(1)
-    turn()
-    out_cards(1)
-    river()
-    final()
-
-# def players_input(): #Набор игроков
-#     global players
-#     for i in range (int(input('how many players?: '))):
-#         players.append(Player(input('player_name: '), i))
-#
-# def show_desk(): #Показать колоду
-#     global deck
-#     for el in deck:
-#         el.show()
+    # flop()
+    # out_cards(1)
+    # turn()
+    # out_cards(1)
+    # river()
+    # final()
 
 
 player_1 = Player('Player 1')
