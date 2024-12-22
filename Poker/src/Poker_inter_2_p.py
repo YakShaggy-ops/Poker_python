@@ -720,15 +720,15 @@ class Ui_MainWindow(QMainWindow):
         self.Player_2_check_button.setGeometry(QtCore.QRect(500, 330, 91, 23))
         self.Player_2_check_button.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.Player_2_check_button.setObjectName("Player_2_check_button")
-
         self.Player_2_check_button.clicked.connect(lambda: self.player_answer('c', 2))
 
         self.Player_2_fold_button = QtWidgets.QPushButton(parent=self.centralwidget)
         self.Player_2_fold_button.setGeometry(QtCore.QRect(500, 360, 91, 23))
         self.Player_2_fold_button.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.Player_2_fold_button.setObjectName("Player_2_fold_button")
-
         self.Player_2_fold_button.clicked.connect(lambda: self.player_answer('f', 2))
+        _translate = QtCore.QCoreApplication.translate
+
 
 
         self.card_5_text_2 = QtWidgets.QLabel(parent=self.centralwidget)

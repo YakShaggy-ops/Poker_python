@@ -1,5 +1,6 @@
 from classes import *
 from game_main import *
+import os
 #from main import restart
 
 
@@ -18,8 +19,11 @@ def show_player_cards(pla):
 
 def show_table_cards_1(table): return table
 
+
+
 def show_cards_way(card):
-    ans_c_i = '../data/'
+    #ans_c_i = 'Poker/data'
+    ans_c_i = 'data'
     if card.suit == 'Буби':
         ans_c_i += '/images_b/card_'
     elif card.suit == 'Червы':
@@ -29,6 +33,8 @@ def show_cards_way(card):
     elif card.suit == 'Крести':
         ans_c_i += '/images_k/card_'
     ans_c_i += card.value
+    
+    #print(ans_c_i)
     return ans_c_i
 
 def get_players():
